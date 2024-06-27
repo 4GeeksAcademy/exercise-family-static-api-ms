@@ -31,12 +31,49 @@ def handle_hello():
     # this is how you can use the Family datastructure by calling its methods
     members = jackson_family.get_all_members()
     response_body = {
-        "hello": "world",
+       
         "family": members
     }
-
-
     return jsonify(response_body), 200
+
+@app.route('/member/<int:member_id>', methods=['GET'])
+def get_member(member_id):
+    # this is how you can use the Family datastructure by calling its methods
+    member = jackson_family.get_member(member_id)
+    if not member:
+        return jsonify({"Error":"the member does not exist"}), 400
+    return jsonify(member), 200
+
+@app.route('/member', methods=['POST'])
+def add_member():
+    request_data = request.get_json()
+
+    # Verificar que los datos requeridos estén presentes
+    required_fields = ['first_name', 'age', 'lucky_numbers']
+    for field in required_fields:
+        if field not in request_data:
+            return jsonify({"error": f"'{field}' es un campo requerido"}), 400
+
+    added_member = {
+        "first_name": request_data['first_name'],
+        "age": request_data['age'],
+        "lucky_numbers": request_data['lucky_numbers']
+    }
+
+    # Suponiendo que jackson_family.add_member agrega el miembro a la familia
+    jackson_family.add_member(added_member)
+
+    return jsonify(added_member), 200
+
+@app.route('/member/<int:member_id>', methods=['DELETE'])
+def delete_family_member(member_id):
+    # this is how you can use the Family datastructure by calling its methods
+    eliminate_familiar = jackson_family.delete_member(member_id)
+    if not eliminate_familiar:
+        return jsonify({"Error":"familiar no encontrado"}), 400
+    return jsonify({"Hecho":"familiar borrado "}), 200
+
+
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
